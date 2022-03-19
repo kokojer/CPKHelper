@@ -1,140 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-   <meta charset="UTF-8">
-   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Document</title>
-   <link rel="stylesheet" href="style.css">
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<link rel="stylesheet" href="style.css">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Roboto&family=Russo+One&display=swap" rel="stylesheet">
+
 </head>
+
 <body>
-   <div class="wrapper">
-      <h1 class="sucsess">Авторизация выполнена</h1>
-      <p></p>
-   </div>
-   <h1>Google Identity Services Authorization with GAPI</h1>
-  <button id="showEventsBtn" onclick="showEvents();">Show Calendar</button><br><br>
-  <button id="revokeBtn" onclick="revokeToken();">Revoke access token</button> -->
-   
- <script>
+	<div class="wrapper" id="gradient">
+		<h1 class="pouring">Пройдите авторизацию через <span class="sticker">GOOGLE</span>
+		</h1>
 
-    const gapiLoadPromise = new Promise((resolve, reject) => {
-      gapiLoadOkay = resolve;
-      gapiLoadFail = reject;
-    });
-    const gisLoadPromise = new Promise((resolve, reject) => {
-      gisLoadOkay = resolve;
-      gisLoadFail = reject;
-    });
 
-    var tokenClient;
+		<div class="google-btn" id="showEventsBtn" onclick="showEvents();">
+			<div class="google-icon-wrapper">
+				<img class="google-icon"
+					src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" />
+			</div>
+			<p class="btn-text"><b>Sign in with google</b></p>
+		</div>
+	</div>
+	</div>
 
-    (async () => {
-      document.getElementById("showEventsBtn").style.visibility="hidden";
-      document.getElementById("revokeBtn").style.visibility="hidden";
+	<script>
 
-      // First, load and initialize the gapi.client
-      await gapiLoadPromise;
-      await new Promise((resolve, reject) => {
-        // NOTE: the 'auth2' module is no longer loaded.
-        gapi.load('client', {callback: resolve, onerror: reject});
-      });
-      await gapi.client.init({
-        // NOTE: OAuth2 'scope' and 'client_id' parameters have moved to initTokenClient().
-      })
-      .then(function() {  // Load the Calendar API discovery document.
-        gapi.client.load('calendar', 'v3');
-      });
+		const gapiLoadPromise = new Promise((resolve, reject) => {
+			gapiLoadOkay = resolve;
+			gapiLoadFail = reject;
+		});
+		const gisLoadPromise = new Promise((resolve, reject) => {
+			gisLoadOkay = resolve;
+			gisLoadFail = reject;
+		});
 
-      // Now load the GIS client
-      await gisLoadPromise;
-        await new Promise((resolve, reject) => {
-          try {
-            tokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: '582401672466-71hn2n3njd0ghrila1vhr02maffj3l7h.apps.googleusercontent.com',
-                scope: 'https://www.googleapis.com/auth/userinfo.email',
-             
-                callback: (tokenResponse) => {
-                  
-                    console.log('fefef');
-                    // gapi.client.setApiKey('YOUR_API_KEY');
-                    // gapi.client.load('calendar', 'v3', listUpcomingEvents);
-                  
-                },  // defined at request time in await/promise scope.
-            });
-            resolve();
-          } catch (err) {
-            reject(err);
-          }
-        });
+		var tokenClient;
 
-      document.getElementById("showEventsBtn").style.visibility="visible";
-      document.getElementById("revokeBtn").style.visibility="visible";
-    })();
+		(async () => {
 
-    async function getToken(err) {
 
-      if (err.result.error.code == 401 || (err.result.error.code == 403) &&
-          (err.result.error.status == "PERMISSION_DENIED")) {
+			// First, load and initialize the gapi.client
+			await gapiLoadPromise;
+			await new Promise((resolve, reject) => {
+				// NOTE: the 'auth2' module is no longer loaded.
+				gapi.load('client', { callback: resolve, onerror: reject });
+			});
+			await gapi.client.init({
 
-        // The access token is missing, invalid, or expired, prompt for user consent to obtain one.
-        await new Promise((resolve, reject) => {
-          try {
-            // Settle this promise in the response callback for requestAccessToken()
-            tokenClient.callback = (resp) => {
-              if (resp.error !== undefined) {
-                reject(resp);
-              }
-              // GIS has automatically updated gapi.client with the newly issued access token.
-              console.log('gapi.client access token: ' + JSON.stringify(gapi.client.getToken()));
-              resolve(resp);
-            };
-            tokenClient.requestAccessToken();
-          } catch (err) {
-            console.log(err)
-          }
-        });
-      } else {
-        // Errors unrelated to authorization: server errors, exceeding quota, bad requests, and so on.
-        throw new Error(err);
-      }
-    }
+			})
+				.then(function () {
+					gapi.client.load('calendar', 'v3');
+				});
 
-    function showEvents() {
-    
-   
-      gapi.client.request({
-        path:'https://www.googleapis.com/oauth2/v1/userinfo',
-        headers:{
-          'Authorization':'Bearer ' + gapi.client.getToken()
-        }
-      })
-      .then(calendarAPIResponse => console.log('1fwfewfwef'))
-      .catch(err  => getToken(err))  // for authorization errors obtain an access token
-      .then(retry => gapi.client.request({
-        path:'https://www.googleapis.com/oauth2/v1/userinfo',
-        headers:{
-          'Authorization':'Bearer ' + gapi.client.getToken().access_token
-        }
-      }))
-      .then(calendarAPIResponse => console.log(JSON.stringify(calendarAPIResponse)))
-      .catch(err  => console.log(err));   // cancelled by user, timeout, etc.
-    }
+			await gisLoadPromise;
+			await new Promise((resolve, reject) => {
+				try {
+					tokenClient = google.accounts.oauth2.initTokenClient({
+						client_id: '582401672466-71hn2n3njd0ghrila1vhr02maffj3l7h.apps.googleusercontent.com',
+						scope: 'https://www.googleapis.com/auth/userinfo.email',
 
-    function revokeToken() {
-      let cred = gapi.client.getToken();
-      if (cred !== null) {
-        google.accounts.oauth2.revoke(cred.access_token, () => {console.log('Revoked: ' + cred.access_token)});
-        gapi.client.setToken('');
-      }
-    }
+						callback: (tokenResponse) => {
+						},
+					});
+					resolve();
+				} catch (err) {
+					reject(err);
+				}
+			});
 
-  </script>
+		})();
 
-  
-  <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoadOkay()" onerror="gapiLoadFail(event)"></script>
-  <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoadOkay()" onerror="gisLoadFail(event)"></script>
+		async function getToken() {
 
-   <script src="script.js" defer></script>
+
+
+			// The access token is missing, invalid, or expired, prompt for user consent to obtain one.
+			await new Promise((resolve, reject) => {
+				try {
+					// Settle this promise in the response callback for requestAccessToken()
+					tokenClient.callback = (resp) => {
+						if (resp.error !== undefined) {
+							reject(resp);
+						}
+						// GIS has automatically updated gapi.client with the newly issued access token.
+
+						resolve(resp);
+					};
+					tokenClient.requestAccessToken();
+				} catch (err) {
+					console.log(err)
+				}
+			});
+
+		}
+
+		function showEvents() {
+
+
+
+			getToken()  // for authorization errors obtain an access token
+				.then(retry => gapi.client.request({
+					path: 'https://www.googleapis.com/oauth2/v1/userinfo',
+					headers: {
+						'Authorization': 'Bearer ' + gapi.client.getToken().access_token
+					}
+				}))
+				.then(userObj => {
+					let email = userObj.result.email
+					let usersLink = 'https://raw.githubusercontent.com/kokojer/CPKHelper/main/users.json'
+
+					fetch(usersLink)
+						.then((res) => {
+							return res.json()
+						})
+						.then((res) => {
+							let googleBtn = document.querySelector('.google-btn')
+							let h1 = document.querySelector('h1')
+							for (let el of res) {
+								if (el === email) {
+									googleBtn.style.display = "none"
+									h1.classList.remove('pouring')
+									h1.classList.add('success')
+									h1.innerHTML = 'Aвторизация выполнена<br> можно пользоваться расширением'
+									h1.dataset.success = true
+									return
+								}
+							}
+							googleBtn.style.display = "none"
+							h1.classList.remove('pouring')
+							h1.classList.add('error')
+							h1.innerHTML = 'Доступ запрещен<br> за покупкой обращаться <a href="https://t.me/kokojer">СЮДА</a>'
+						})
+				})
+				.catch(err => console.log(err));   // cancelled by user, timeout, etc.
+		}
+
+		function revokeToken() {
+			let cred = gapi.client.getToken();
+			if (cred !== null) {
+				google.accounts.oauth2.revoke(cred.access_token, () => { console.log('Revoked: ' + cred.access_token) });
+				gapi.client.setToken('');
+			}
+		}
+
+	</script>
+
+
+	<script async defer src="https://apis.google.com/js/api.js" onload="gapiLoadOkay()"
+		onerror="gapiLoadFail(event)"></script>
+	<script async defer src="https://accounts.google.com/gsi/client" onload="gisLoadOkay()"
+		onerror="gisLoadFail(event)"></script>
+
+	<script src="script.js" defer></script>
+
 </body>
+
 </html>
